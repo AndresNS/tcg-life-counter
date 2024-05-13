@@ -1,0 +1,7 @@
+{
+  "name": "tcg-life-counter",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
