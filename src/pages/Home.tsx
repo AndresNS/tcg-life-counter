@@ -8,26 +8,11 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import PresetsList from "../features/presets/PresetsList";
-import { Preset } from "../features/presets/types";
-
-const presets: Preset[] = [
-  { id: "1", name: "CC", startingLife: 40, players: 2 },
-  { id: "2", name: "Blitz", startingLife: 20, players: 2 },
-  { id: "3", name: "Blitz", startingLife: 20, players: 2 },
-  { id: "4", name: "Blitz", startingLife: 20, players: 2 },
-  { id: "5", name: "Blitz", startingLife: 20, players: 2 },
-  { id: "6", name: "Blitz", startingLife: 20, players: 2 },
-  { id: "7", name: "Blitz", startingLife: 20, players: 2 },
-  { id: "8", name: "Blitz", startingLife: 20, players: 2 },
-  { id: "9", name: "Blitz", startingLife: 20, players: 2 },
-  { id: "10", name: "Blitz", startingLife: 20, players: 2 },
-  { id: "11", name: "Blitz", startingLife: 20, players: 2 },
-  { id: "12", name: "Blitz", startingLife: 20, players: 2 },
-  { id: "13", name: "Blitz", startingLife: 20, players: 2 },
-  { id: "14", name: "Blitz", startingLife: 20, players: 2 },
-];
+import { usePresetsContext } from "../context/presetsContext";
 
 const Home: React.FC = () => {
+  const { presets } = usePresetsContext();
+
   return (
     <IonPage>
       <IonHeader>

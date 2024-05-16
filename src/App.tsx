@@ -42,6 +42,7 @@ import "./App.css";
 import NewGame from "./pages/NewGame";
 import Home from "./pages/Home";
 import Game from "./pages/Game";
+import { PresetsContextProvider } from "./context/presetsContext";
 
 setupIonicReact();
 
@@ -53,7 +54,9 @@ const App: React.FC = () => {
           <Menu />
           <IonRouterOutlet id="main">
             <Route path="/" exact={true}>
-              <Home />
+              <PresetsContextProvider>
+                <Home />
+              </PresetsContextProvider>
             </Route>
             <Route path="/new-game" exact={true}>
               <NewGame />
