@@ -1,5 +1,6 @@
 import {
   IonBackButton,
+  IonButton,
   IonButtons,
   IonCheckbox,
   IonContent,
@@ -7,33 +8,40 @@ import {
   IonHeader,
   IonIcon,
   IonInput,
+  IonModal,
   IonPage,
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
 import { create, pencil } from "ionicons/icons";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Preset } from "../features/presets/types";
+import { OverlayEventDetail } from "@ionic/core/components";
+import { usePresetsContext } from "../context/presetsContext";
+import { useHistory } from "react-router";
 
 const startingLifeValues: number[] = [20, 40, 100];
 const totalPlayersValues: number[] = [2, 3, 4];
 
 const NewGame: React.FC = () => {
+  const history = useHistory();
+  const { addPreset } = usePresetsContext();
+
   const [startingLifeIndex, setStartingLifeIndex] = useState(0);
   const [saveAsPreset, setSaveAsPreset] = useState(false);
   const [presetName, setPresetName] = useState("");
   const [totalPlayersIndex, setTotalPlayersIndex] = useState(0);
-  const [dialogVisible, setDialogVisible] = useState(false);
   const [startingLife, setStartingLife] = useState("");
-  // const [timer, setTimer] = useState(false);
-  // const [players, setPlayers] = useState<Player[]>(defaultPlayers);
+
+  const customStartingLifeModal = useRef<HTMLIonModalElement>(null);
+  const customStartingLifeInput = useRef<HTMLIonInputElement>(null);
 
   useEffect(() => {
     if (startingLifeIndex !== startingLifeValues.length)
       setStartingLife(startingLifeValues[startingLifeIndex].toString());
   }, [startingLifeIndex]);
 
-  const handleStartGamePress = async () => {
+  const handleStartGame = async () => {
     const newPreset: Preset = {
       id: crypto.randomUUID(),
       name: presetName,
@@ -42,24 +50,31 @@ const NewGame: React.FC = () => {
     };
 
     if (saveAsPreset) {
-      dispatch(createPreset(newPreset));
+      addPreset(newPreset);
     }
 
-    router.replace({ pathname: "/game", params: newPreset });
+    history.push({
+      pathname: "/",
+      state: { startingLife },
+    });
   };
-
-  const showDialog = () => setDialogVisible(true);
-  const closeDialog = () => setDialogVisible(false);
 
   const handleCustomStartingLife = () => {
     setStartingLifeIndex(startingLifeValues.length);
     setStartingLife("");
-
-    showDialog();
   };
 
   const handleCheckboxChange = (event: CustomEvent) => {
     setSaveAsPreset(event.detail.checked);
+  };
+  const confirmDialog = () => {
+    customStartingLifeModal.current?.dismiss(customStartingLifeInput.current?.value, "confirm");
+  };
+
+  const onWillDismiss = (ev: CustomEvent<OverlayEventDetail>) => {
+    if (ev.detail.role === "confirm") {
+      setStartingLife(ev.detail.data);
+    }
   };
 
   return (
@@ -84,7 +99,7 @@ const NewGame: React.FC = () => {
                   key={index}
                   onClick={() => setStartingLifeIndex(index)}
                 >
-                  <span>{startingLifeValue}</span>
+                  <span className="text-lg">{startingLifeValue}</span>
                 </button>
               )),
               <button
@@ -95,11 +110,12 @@ const NewGame: React.FC = () => {
                 }`}
                 key={startingLifeValues.length}
                 onClick={handleCustomStartingLife}
+                id="open-modal"
               >
                 {startingLifeIndex === startingLifeValues.length &&
                 startingLife !== "" ? (
-                  <div className="text-2xl">
-                    <span>{startingLife}</span>
+                  <div className="flex justify-center items-center gap-2 text-xl">
+                    <span className="text-lg">{startingLife}</span>
                     <IonIcon icon={pencil}></IonIcon>
                   </div>
                 ) : (
@@ -122,7 +138,7 @@ const NewGame: React.FC = () => {
                 disabled={totalPlayersValue !== 2}
                 onClick={() => setTotalPlayersIndex(index)}
               >
-                <span>{totalPlayersValue}</span>
+                <span className="text-lg">{totalPlayersValue}</span>
               </button>
             ))}
           </div>
@@ -136,16 +152,58 @@ const NewGame: React.FC = () => {
           >
             Save as preset
           </IonCheckbox>
-          {saveAsPreset && <IonInput label="Preset Name" labelPlacement="floating" fill="solid" color="dark"></IonInput>}
+          {saveAsPreset && (
+            <IonInput
+              label="Preset Name"
+              labelPlacement="floating"
+              fill="solid"
+              color="dark"
+              value={presetName}
+              onIonChange={(event: CustomEvent) =>
+                setPresetName(event.detail.value)
+              }
+            ></IonInput>
+          )}
         </div>
+        <IonModal
+          ref={customStartingLifeModal}
+          trigger="open-modal"
+          onWillDismiss={(ev) => onWillDismiss(ev)}
+        >
+          <IonHeader>
+            <IonToolbar>
+              <IonButtons slot="start">
+                <IonButton onClick={() => customStartingLifeModal.current?.dismiss()}>
+                  Cancel
+                </IonButton>
+              </IonButtons>
+              <IonTitle>Custom Starting Life</IonTitle>
+              <IonButtons slot="end">
+                <IonButton strong={true} onClick={() => confirmDialog()}>
+                  Confirm
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="ion-padding">
+            <IonInput
+              label="Starting life"
+              labelPlacement="floating"
+              fill="solid"
+              color="dark"
+              type="number"
+              ref={customStartingLifeInput}
+            ></IonInput>
+          </IonContent>
+        </IonModal>
       </IonContent>
       <IonFooter className="flex justify-center pb-4">
-        <a
-          href="/new-game"
+        <button
           className="block text-center w-4/5 bg-primary-500 rounded py-2"
+          onClick={handleStartGame}
         >
           Start Game
-        </a>
+        </button>
       </IonFooter>
     </IonPage>
   );

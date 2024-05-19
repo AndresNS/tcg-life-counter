@@ -48,26 +48,26 @@ setupIonicReact();
 
 const App: React.FC = () => {
   return (
-    <IonApp>
-      <IonReactRouter>
-        <IonSplitPane contentId="main">
-          <Menu />
-          <IonRouterOutlet id="main">
-            <Route path="/" exact={true}>
-              <PresetsContextProvider>
+    <PresetsContextProvider>
+      <IonApp>
+        <IonReactRouter>
+          <IonSplitPane contentId="main">
+            <Menu />
+            <IonRouterOutlet id="main">
+              <Route path="/" exact={true}>
                 <Home />
-              </PresetsContextProvider>
+              </Route>
+              <Route path="/new-game" exact={true}>
+                <NewGame />
+              </Route>
+            </IonRouterOutlet>
+            <Route path="/game" exact={true}>
+              <Game />
             </Route>
-            <Route path="/new-game" exact={true}>
-              <NewGame />
-            </Route>
-          </IonRouterOutlet>
-          <Route path="/game" exact={true}>
-            <Game />
-          </Route>
-        </IonSplitPane>
-      </IonReactRouter>
-    </IonApp>
+          </IonSplitPane>
+        </IonReactRouter>
+      </IonApp>
+    </PresetsContextProvider>
   );
 };
 

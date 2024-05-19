@@ -10,7 +10,7 @@ import { Database, Storage } from "@ionic/storage";
 
 type PresetsState = {
   presets: Preset[];
-  addPreset: () => void;
+  addPreset: (preset: Preset) => void;
   getPresets: () => Promise<Preset[]>;
 };
 
@@ -42,10 +42,11 @@ export const PresetsContextProvider: React.FC<{ children: ReactNode }> = ({
     initStorage();
   }, []);
 
-  const addPreset = async () => {
-    await storage.set("presets", [
-      { id: "14", name: "Blitz", startingLife: 20, players: 2 },
-    ]);
+  const addPreset = async (preset: Preset) => {
+    const updatedPresets = [...presets, preset];
+    await storage.set("presets", updatedPresets);
+
+    setPresets(updatedPresets);
   };
 
   const getPresets = async () => {
