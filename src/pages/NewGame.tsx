@@ -32,13 +32,15 @@ const NewGame: React.FC = () => {
   const [presetName, setPresetName] = useState("");
   const [totalPlayersIndex, setTotalPlayersIndex] = useState(0);
   const [startingLife, setStartingLife] = useState("");
+  const [customStartingLife, setCustomStartingLife] = useState("");
 
   const customStartingLifeModal = useRef<HTMLIonModalElement>(null);
   const customStartingLifeInput = useRef<HTMLIonInputElement>(null);
 
   useEffect(() => {
-    if (startingLifeIndex !== startingLifeValues.length)
+    if (startingLifeIndex !== startingLifeValues.length) {
       setStartingLife(startingLifeValues[startingLifeIndex].toString());
+    }
   }, [startingLifeIndex]);
 
   const handleStartGame = async () => {
@@ -61,20 +63,21 @@ const NewGame: React.FC = () => {
 
   const handleCustomStartingLife = () => {
     setStartingLifeIndex(startingLifeValues.length);
-    setStartingLife("");
   };
 
   const handleCheckboxChange = (event: CustomEvent) => {
     setSaveAsPreset(event.detail.checked);
   };
   const confirmDialog = () => {
-    customStartingLifeModal.current?.dismiss(customStartingLifeInput.current?.value, "confirm");
+    customStartingLifeModal.current?.dismiss(
+      customStartingLifeInput.current?.value,
+      "confirm",
+    );
   };
 
   const onWillDismiss = (ev: CustomEvent<OverlayEventDetail>) => {
-    if (ev.detail.role === "confirm") {
-      setStartingLife(ev.detail.data);
-    }
+    if (!ev.detail.role) setStartingLifeIndex(0);
+    if (ev.detail.role === "confirm") setStartingLife(customStartingLife);
   };
 
   return (
@@ -112,10 +115,9 @@ const NewGame: React.FC = () => {
                 onClick={handleCustomStartingLife}
                 id="open-modal"
               >
-                {startingLifeIndex === startingLifeValues.length &&
-                startingLife !== "" ? (
+                {customStartingLife !== "" ? (
                   <div className="flex justify-center items-center gap-2 text-xl">
-                    <span className="text-lg">{startingLife}</span>
+                    <span className="text-lg">{customStartingLife}</span>
                     <IonIcon icon={pencil}></IonIcon>
                   </div>
                 ) : (
@@ -159,7 +161,7 @@ const NewGame: React.FC = () => {
               fill="solid"
               color="dark"
               value={presetName}
-              onIonChange={(event: CustomEvent) =>
+              onIonInput={(event: CustomEvent) =>
                 setPresetName(event.detail.value)
               }
             ></IonInput>
@@ -172,15 +174,17 @@ const NewGame: React.FC = () => {
         >
           <IonHeader>
             <IonToolbar>
-              <IonButtons slot="start">
-                <IonButton onClick={() => customStartingLifeModal.current?.dismiss()}>
-                  Cancel
-                </IonButton>
-              </IonButtons>
               <IonTitle>Custom Starting Life</IonTitle>
               <IonButtons slot="end">
-                <IonButton strong={true} onClick={() => confirmDialog()}>
-                  Confirm
+                <IonButton
+                  strong={true}
+                  onClick={() =>
+                    customStartingLife !== ""
+                      ? confirmDialog()
+                      : customStartingLifeModal.current?.dismiss()
+                  }
+                >
+                  {customStartingLife !== "" ? "Confirm" : "Cancel"}
                 </IonButton>
               </IonButtons>
             </IonToolbar>
@@ -188,6 +192,10 @@ const NewGame: React.FC = () => {
           <IonContent className="ion-padding">
             <IonInput
               label="Starting life"
+              value={customStartingLife}
+              onIonInput={(event: CustomEvent) =>
+                setCustomStartingLife(event.detail.value)
+              }
               labelPlacement="floating"
               fill="solid"
               color="dark"
@@ -199,8 +207,9 @@ const NewGame: React.FC = () => {
       </IonContent>
       <IonFooter className="flex justify-center pb-4">
         <button
-          className="block text-center w-4/5 bg-primary-500 rounded py-2"
+          className="block text-center w-4/5 bg-primary-500 rounded py-2 disabled:bg-grays-500"
           onClick={handleStartGame}
+          disabled={saveAsPreset && presetName === ""}
         >
           Start Game
         </button>
