@@ -1,5 +1,5 @@
 export type Preset = {
-  id: string | number[];
+  id: string ;
   name: string;
   startingLife: number;
   players: number;

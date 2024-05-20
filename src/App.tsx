@@ -42,7 +42,7 @@ import "./App.css";
 import NewGame from "./pages/NewGame";
 import Home from "./pages/Home";
 import Game from "./pages/Game";
-import { PresetsContextProvider } from "./context/presetsContext";
+import { PresetsContextProvider } from "./features/presets/presetsContext";
 
 setupIonicReact();
 

@@ -5,19 +5,21 @@ import {
   useEffect,
   useState,
 } from "react";
-import { Preset } from "../features/presets/types";
+import { Preset } from "./types";
 import { Database, Storage } from "@ionic/storage";
 
 type PresetsState = {
   presets: Preset[];
-  addPreset: (preset: Preset) => void;
+  addPreset: (preset: Preset) => Promise<void>;
   getPresets: () => Promise<Preset[]>;
+  deletePreset: (presetIf: string) => Promise<void>;
 };
 
 const defaultState: PresetsState = {
   presets: [],
-  addPreset: () => {},
+  addPreset: async () => {},
   getPresets: async () => [],
+  deletePreset: async () => {},
 };
 
 export const PresetsContext = createContext<PresetsState>(defaultState);
@@ -54,8 +56,17 @@ export const PresetsContextProvider: React.FC<{ children: ReactNode }> = ({
     return presets;
   };
 
+  const deletePreset = async (presetId: string) => {
+    const updatePresets = presets.filter((preset) => preset.id !== presetId);
+    await storage.set("presets", updatePresets);
+
+    setPresets(updatePresets);
+  };
+
   return (
-    <PresetsContext.Provider value={{ presets, addPreset, getPresets }}>
+    <PresetsContext.Provider
+      value={{ presets, addPreset, getPresets, deletePreset }}
+    >
       {children}
     </PresetsContext.Provider>
   );

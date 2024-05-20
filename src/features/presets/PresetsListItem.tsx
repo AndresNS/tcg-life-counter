@@ -1,16 +1,38 @@
-import { IonActionSheet, IonButton, IonIcon } from "@ionic/react";
+import {
+  IonActionSheet,
+  IonButton,
+  IonIcon,
+  useIonLoading,
+} from "@ionic/react";
 import { Preset } from "./types";
 import { ellipsisVertical, heart, people } from "ionicons/icons";
 import type { OverlayEventDetail } from "@ionic/core";
+import { usePresetsContext } from "./presetsContext";
 
 export default function PresetsListItem({
   preset: { id, name, startingLife, players },
 }: {
   preset: Preset;
 }) {
-  const logResult = (result: OverlayEventDetail) => {
-    console.log(JSON.stringify(result, null, 2));
+  const { deletePreset } = usePresetsContext();
+  const [present, dismiss] = useIonLoading();
+
+  const handleAction = async (result: OverlayEventDetail) => {
+    try {
+      if (result.data.action === "delete") {
+        present({ message: "Deleting Preset" });
+        await deletePreset(id);
+      }
+
+      if (result.data.action === "edit") console.log("editing");
+    } catch (error) {
+      // TODO: Add error message
+      console.error(error);
+    } finally {
+      dismiss();
+    }
   };
+
   return (
     <div className="flex p-4 bg-grays-900 rounded-sm">
       <div className="flex flex-col flex-1">
@@ -60,7 +82,7 @@ export default function PresetsListItem({
               },
             },
           ]}
-          onDidDismiss={({ detail }) => logResult(detail)}
+          onDidDismiss={({ detail }) => handleAction(detail)}
         ></IonActionSheet>
       </div>
     </div>

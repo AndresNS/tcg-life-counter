@@ -17,7 +17,7 @@ import { create, pencil } from "ionicons/icons";
 import { useEffect, useRef, useState } from "react";
 import { Preset } from "../features/presets/types";
 import { OverlayEventDetail } from "@ionic/core/components";
-import { usePresetsContext } from "../context/presetsContext";
+import { usePresetsContext } from "../features/presets/presetsContext";
 import { useHistory } from "react-router";
 
 const startingLifeValues: number[] = [20, 40, 100];
