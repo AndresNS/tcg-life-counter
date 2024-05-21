@@ -43,6 +43,7 @@ import NewGame from "./pages/NewGame";
 import Home from "./pages/Home";
 import Game from "./pages/Game";
 import { PresetsContextProvider } from "./features/presets/presetsContext";
+import EditPreset from "./pages/EditPreset";
 
 setupIonicReact();
 
@@ -59,6 +60,9 @@ const App: React.FC = () => {
               </Route>
               <Route path="/new-game" exact={true}>
                 <NewGame />
+              </Route>
+              <Route path="/edit-preset" exact={true}>
+                <EditPreset />
               </Route>
             </IonRouterOutlet>
             <Route path="/game" exact={true}>

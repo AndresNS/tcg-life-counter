@@ -18,18 +18,39 @@ import { useEffect, useRef, useState } from "react";
 import { Preset } from "../features/presets/types";
 import { OverlayEventDetail } from "@ionic/core/components";
 import { usePresetsContext } from "../features/presets/presetsContext";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 
 const startingLifeValues: number[] = [20, 40, 100];
 const totalPlayersValues: number[] = [2, 3, 4];
+const defaultPreset: Preset = { id: "", name: "", startingLife: 0, players: 0 };
+function getStartingLifeIndex(
+  startingLife: number,
+  startingLifeValues: number[],
+) {
+  const index = startingLifeValues.findIndex((value) => {
+    return value === startingLife;
+  });
 
-const NewGame: React.FC = () => {
+  return index === -1 ? startingLifeValues.length : index;
+}
+
+interface LocationState {
+  preset: Preset;
+}
+
+const EditPreset: React.FC = () => {
   const history = useHistory();
-  const { addPreset } = usePresetsContext();
+  const { state } = useLocation<LocationState>();
+  const { preset } = state || {
+    preset: defaultPreset,
+  };
 
-  const [startingLifeIndex, setStartingLifeIndex] = useState(0);
-  const [saveAsPreset, setSaveAsPreset] = useState(false);
-  const [presetName, setPresetName] = useState("");
+  const { editPreset } = usePresetsContext();
+
+  const [startingLifeIndex, setStartingLifeIndex] = useState(
+    getStartingLifeIndex(preset.startingLife, startingLifeValues),
+  );
+  const [presetName, setPresetName] = useState(preset.name);
   const [totalPlayersIndex, setTotalPlayersIndex] = useState(0);
   const [startingLife, setStartingLife] = useState("");
   const [customStartingLife, setCustomStartingLife] = useState("");
@@ -44,16 +65,12 @@ const NewGame: React.FC = () => {
   }, [startingLifeIndex]);
 
   const handleStartGame = async () => {
-    const newPreset: Preset = {
-      id: crypto.randomUUID(),
+    editPreset({
+      id: preset.id,
       name: presetName,
       startingLife: Number(startingLife),
       players: 2,
-    };
-
-    if (saveAsPreset) {
-      addPreset(newPreset);
-    }
+    });
 
     history.push({
       pathname: "/",
@@ -65,9 +82,6 @@ const NewGame: React.FC = () => {
     setStartingLifeIndex(startingLifeValues.length);
   };
 
-  const handleCheckboxChange = (event: CustomEvent) => {
-    setSaveAsPreset(event.detail.checked);
-  };
   const confirmDialog = () => {
     customStartingLifeModal.current?.dismiss(
       customStartingLifeInput.current?.value,
@@ -87,11 +101,23 @@ const NewGame: React.FC = () => {
           <IonButtons slot="start">
             <IonBackButton defaultHref="/" />
           </IonButtons>
-          <IonTitle>New Game</IonTitle>
+          <IonTitle>Edit Preset</IonTitle>
         </IonToolbar>
       </IonHeader>
 
       <IonContent fullscreen>
+        <div className="p-4">
+          <IonInput
+            label="Preset Name"
+            labelPlacement="floating"
+            fill="solid"
+            color="dark"
+            value={presetName}
+            onIonInput={(event: CustomEvent) =>
+              setPresetName(event.detail.value)
+            }
+          ></IonInput>
+        </div>
         <div className="p-4">
           <label className="block mb-4">Starting Life</label>
           <div className="flex gap-2">
@@ -145,28 +171,6 @@ const NewGame: React.FC = () => {
             ))}
           </div>
         </div>
-        <div className="p-4">
-          <IonCheckbox
-            className="mb-4"
-            labelPlacement="end"
-            checked={saveAsPreset}
-            onIonChange={handleCheckboxChange}
-          >
-            Save as preset
-          </IonCheckbox>
-          {saveAsPreset && (
-            <IonInput
-              label="Preset Name"
-              labelPlacement="floating"
-              fill="solid"
-              color="dark"
-              value={presetName}
-              onIonInput={(event: CustomEvent) =>
-                setPresetName(event.detail.value)
-              }
-            ></IonInput>
-          )}
-        </div>
         <IonModal
           ref={customStartingLifeModal}
           trigger="open-modal"
@@ -205,17 +209,8 @@ const NewGame: React.FC = () => {
           </IonContent>
         </IonModal>
       </IonContent>
-      <IonFooter className="flex justify-center pb-4">
-        <button
-          className="block text-center w-4/5 bg-primary-500 rounded py-2 disabled:bg-grays-500"
-          onClick={handleStartGame}
-          disabled={saveAsPreset && presetName === ""}
-        >
-          Start Game
-        </button>
-      </IonFooter>
     </IonPage>
   );
 };
 
-export default NewGame;
+export default EditPreset;

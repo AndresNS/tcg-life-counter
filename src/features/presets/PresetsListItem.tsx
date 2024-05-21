@@ -8,12 +8,14 @@ import { Preset } from "./types";
 import { ellipsisVertical, heart, people } from "ionicons/icons";
 import type { OverlayEventDetail } from "@ionic/core";
 import { usePresetsContext } from "./presetsContext";
+import { useHistory } from "react-router-dom";
 
 export default function PresetsListItem({
   preset: { id, name, startingLife, players },
 }: {
   preset: Preset;
 }) {
+  const history = useHistory();
   const { deletePreset } = usePresetsContext();
   const [present, dismiss] = useIonLoading();
 
@@ -24,7 +26,12 @@ export default function PresetsListItem({
         await deletePreset(id);
       }
 
-      if (result.data.action === "edit") console.log("editing");
+      if (result.data.action === "edit") {
+        history.push({
+          pathname: "/edit-preset",
+          state: { preset: { id, name, startingLife, players } },
+        });
+      }
     } catch (error) {
       // TODO: Add error message
       console.error(error);
