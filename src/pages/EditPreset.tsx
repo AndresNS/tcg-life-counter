@@ -2,9 +2,7 @@ import {
   IonBackButton,
   IonButton,
   IonButtons,
-  IonCheckbox,
   IonContent,
-  IonFooter,
   IonHeader,
   IonIcon,
   IonInput,
@@ -52,8 +50,15 @@ const EditPreset: React.FC = () => {
   );
   const [presetName, setPresetName] = useState(preset.name);
   const [totalPlayersIndex, setTotalPlayersIndex] = useState(0);
-  const [startingLife, setStartingLife] = useState("");
-  const [customStartingLife, setCustomStartingLife] = useState("");
+  const [startingLife, setStartingLife] = useState(
+    preset.startingLife.toString(),
+  );
+  const [customStartingLife, setCustomStartingLife] = useState(
+    getStartingLifeIndex(preset.startingLife, startingLifeValues) ===
+      startingLifeValues.length
+      ? preset.startingLife.toString()
+      : "",
+  );
 
   const customStartingLifeModal = useRef<HTMLIonModalElement>(null);
   const customStartingLifeInput = useRef<HTMLIonInputElement>(null);
@@ -64,18 +69,21 @@ const EditPreset: React.FC = () => {
     }
   }, [startingLifeIndex]);
 
-  const handleStartGame = async () => {
-    editPreset({
-      id: preset.id,
-      name: presetName,
-      startingLife: Number(startingLife),
-      players: 2,
-    });
+  const handleSaveChanges = async () => {
+    try {
+      await editPreset({
+        id: preset.id,
+        name: presetName,
+        startingLife: Number(startingLife),
+        players: 2,
+      });
 
-    history.push({
-      pathname: "/",
-      state: { startingLife },
-    });
+      history.push({
+        pathname: "/",
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleCustomStartingLife = () => {
@@ -102,6 +110,11 @@ const EditPreset: React.FC = () => {
             <IonBackButton defaultHref="/" />
           </IonButtons>
           <IonTitle>Edit Preset</IonTitle>
+          <IonButtons slot="end">
+            <IonButton strong={true} onClick={() => handleSaveChanges()}>
+              Save
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
 
