@@ -56,7 +56,7 @@ const NewGame: React.FC = () => {
     }
 
     history.push({
-      pathname: "/",
+      pathname: "/game",
       state: { startingLife },
     });
   };
